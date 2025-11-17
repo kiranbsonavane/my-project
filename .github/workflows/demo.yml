@@ -31,4 +31,5 @@ jobs:
       - name: Run MPI program
         run: |
           mpirun -np 4 ./t_mpi
+          mpirun --use-hwthread-cpus -np 4 ./t_mpi
         
