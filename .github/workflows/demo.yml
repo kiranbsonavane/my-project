@@ -21,6 +21,7 @@ jobs:
           pwd
           ls
           lscpu
+          ls "$(which mpirun)"
           free -h
           df -h
 
@@ -30,7 +31,6 @@ jobs:
 
       - name: Run MPI program
         run: |
-          mpirun -np 4 ./t_mpi
           ls
           ls "$(which mpirun)"
           mpirun --use-hwthread-cpus -np 4 ./t_mpi
