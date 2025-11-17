@@ -20,6 +20,9 @@ jobs:
           sudo which mpicc
           pwd
           ls
+          lscpu
+          free -h
+          df -h
 
       - name: Compile MPI program
         run: |
