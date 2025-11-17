@@ -32,4 +32,6 @@ jobs:
         run: |
           mpirun -np 4 ./t_mpi
           mpirun --use-hwthread-cpus -np 4 ./t_mpi
+          mpirun --report-pid --display-devel-map -np 1 hostname
+          mpirun --report-pid --display-devel-map -np 1 ./t_mpi
         
