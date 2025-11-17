@@ -16,6 +16,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y openmpi-bin libopenmpi-dev
+          sudo which mpirun 
+          sudo which mpicc
+          pwd
 
       - name: Compile MPI program
         run: |
