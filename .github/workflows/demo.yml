@@ -19,10 +19,11 @@ jobs:
           sudo which mpirun 
           sudo which mpicc
           pwd
+          ls
 
       - name: Compile MPI program
         run: |
-          mpicxx t.cpp -o t_mpi
+          mpicxx t1.cpp -o t_mpi
 
       - name: Run MPI program
         run: |
