@@ -1,8 +1,25 @@
 name: hello-world
-'on': push
+on: push
 jobs:
   my-job:
     runs-on: ubuntu-latest
     steps:
       - name: my-step
         run: echo "Hello World!"
+        steps:
+      - name: Checkout repository
+      uses: actions/checkout@v4 # Action to download the repository code
+
+      - name: Install OpenMPI
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y openmpi-bin libopenmpi-dev
+
+      - name: Compile MPI program
+      run: |
+        mpicxx t.cpp -o t_mpi
+
+      - name: Run MPI program
+      run: |
+        mpirun -np 4 ./t_mpi # Runs with 4 processes, adjust as needed
+        
