@@ -76,3 +76,4 @@ jobs:
         run: |
           mpirun --report-pid --display-devel-map -np 1 ./t_mpi
           mpirun --oversubscribe --report-pid --display-devel-map -np 4 hostname
+          echo "Program completed"
