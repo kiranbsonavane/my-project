@@ -3,38 +3,68 @@ name: hello-world
 on: push
 
 jobs:
-  my-job:
+  mpi-test:
+    name: Test on Ubuntu and Rocky
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        os: [ubuntu, rocky]
+
+    # Run Rocky Linux inside a container
+    container:
+      image: rockylinux:9
+      options: --privileged
+      credentials: {}
+      # Only apply container when matrix.os == "rocky"
+    if: matrix.os == 'rocky'
+
     steps:
+      - name: Print environment info
+        run: |
+          echo "Running on ${{ matrix.os }}"
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Say Hello
-        run: echo "Hello World!"
-
-      - name: Install OpenMPI
+      # ---------- UBUNTU SETUP ----------
+      - name: Install OpenMPI on Ubuntu
+        if: matrix.os == 'ubuntu'
         run: |
           sudo apt-get update
           sudo apt-get install -y openmpi-bin libopenmpi-dev
-          sudo which mpirun 
+          sudo which mpirun
           sudo which mpicc
-          pwd
-          ls
           lscpu
-          ls "$(which mpirun)"
           free -h
           df -h
 
+      # ---------- ROCKY LINUX SETUP ----------
+      - name: Install OpenMPI on Rocky
+        if: matrix.os == 'rocky'
+        run: |
+          dnf install -y epel-release
+          dnf install -y openmpi openmpi-devel which
+          echo 'export PATH=/usr/lib64/openmpi/bin:$PATH' >> ~/.bashrc
+          echo 'export LD_LIBRARY_PATH=/usr/lib64/openmpi/lib:$LD_LIBRARY_PATH' >> ~/.bashrc
+          source ~/.bashrc
+          which mpirun
+          which mpicc
+          lscpu
+          free -h
+          df -h
+
+      # ---------- COMPILE ----------
       - name: Compile MPI program
         run: |
           mpicxx t1.cpp -o t_mpi
 
+      # ---------- RUN MPI ----------
       - name: Run MPI program
         run: |
-          ls
-          ls "$(which mpirun)"
+          echo "Running on ${{ matrix.os }}"
+          mpirun -np 4 ./t_mpi
           mpirun --use-hwthread-cpus -np 4 ./t_mpi
           mpirun --report-pid --display-devel-map -np 1 hostname
           mpirun --report-pid --display-devel-map -np 1 ./t_mpi
           mpirun --oversubscribe --report-pid --display-devel-map -np 4 hostname
-        
