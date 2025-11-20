@@ -52,6 +52,7 @@ jobs:
           dnf install -y epel-release
           dnf install -y openmpi openmpi-devel which
           dnf install -y gcc gcc-c++
+          cat /etc/os-release
 
           # Add OpenMPI paths so future steps can find mpicxx/mpirun
           echo "/usr/lib64/openmpi/bin" >> $GITHUB_PATH
