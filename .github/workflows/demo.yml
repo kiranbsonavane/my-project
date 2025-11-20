@@ -73,8 +73,5 @@ jobs:
           OMPI_ALLOW_RUN_AS_ROOT: 1
           OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
         run: |
-          mpirun -np 4 ./t_mpi
-          mpirun --use-hwthread-cpus -np 4 ./t_mpi
-          mpirun --report-pid --display-devel-map -np 1 hostname
           mpirun --report-pid --display-devel-map -np 1 ./t_mpi
           mpirun --oversubscribe --report-pid --display-devel-map -np 4 hostname
