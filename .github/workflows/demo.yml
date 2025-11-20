@@ -3,45 +3,54 @@ name: hello-world
 on: push
 
 jobs:
-  mpi-test:
-    name: Test on Ubuntu and Rocky
+
+  ubuntu:
+    name: Ubuntu MPI Run
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        os: [ubuntu, rocky]
-
-    # Run Rocky Linux inside a container
-    container:
-      image: rockylinux:9
-      options: --privileged
-      credentials: {}
-      # Only apply container when matrix.os == "rocky"
-    if: matrix.os == 'rocky'
-
     steps:
-      - name: Print environment info
-        run: |
-          echo "Running on ${{ matrix.os }}"
-
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # ---------- UBUNTU SETUP ----------
-      - name: Install OpenMPI on Ubuntu
-        if: matrix.os == 'ubuntu'
+      - name: Say Hello
+        run: echo "Hello from Ubuntu!"
+
+      - name: Install OpenMPI (Ubuntu)
         run: |
           sudo apt-get update
           sudo apt-get install -y openmpi-bin libopenmpi-dev
-          sudo which mpirun
-          sudo which mpicc
+          which mpirun
+          which mpicc
           lscpu
           free -h
           df -h
 
-      # ---------- ROCKY LINUX SETUP ----------
-      - name: Install OpenMPI on Rocky
-        if: matrix.os == 'rocky'
+      - name: Compile MPI program
+        run: mpicxx t1.cpp -o t_mpi
+
+      - name: Run MPI program
+        run: |
+          mpirun -np 4 ./t_mpi
+          mpirun --use-hwthread-cpus -np 4 ./t_mpi
+          mpirun --report-pid --display-devel-map -np 1 hostname
+          mpirun --report-pid --display-devel-map -np 1 ./t_mpi
+          mpirun --oversubscribe --report-pid --display-devel-map -np 4 hostname
+
+  rocky:
+    name: Rocky Linux MPI Run
+    runs-on: ubuntu-latest   # GitHub runner host
+    container:
+      image: rockylinux:9    # Rocky runs inside the container
+      options: --privileged
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Say Hello
+        run: echo "Hello from Rocky Linux!"
+
+      - name: Install OpenMPI (Rocky)
         run: |
           dnf install -y epel-release
           dnf install -y openmpi openmpi-devel which
@@ -54,15 +63,11 @@ jobs:
           free -h
           df -h
 
-      # ---------- COMPILE ----------
       - name: Compile MPI program
-        run: |
-          mpicxx t1.cpp -o t_mpi
+        run: mpicxx t1.cpp -o t_mpi
 
-      # ---------- RUN MPI ----------
       - name: Run MPI program
         run: |
-          echo "Running on ${{ matrix.os }}"
           mpirun -np 4 ./t_mpi
           mpirun --use-hwthread-cpus -np 4 ./t_mpi
           mpirun --report-pid --display-devel-map -np 1 hostname
