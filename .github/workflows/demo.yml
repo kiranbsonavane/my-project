@@ -69,6 +69,9 @@ jobs:
         run: mpicxx t1.cpp -o t_mpi
 
       - name: Run MPI program
+        env:
+          OMPI_ALLOW_RUN_AS_ROOT: 1
+          OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
         run: |
           mpirun -np 4 ./t_mpi
           mpirun --use-hwthread-cpus -np 4 ./t_mpi
