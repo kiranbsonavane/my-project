@@ -51,19 +51,26 @@ jobs:
         run: |
           dnf install -y epel-release
           dnf install -y openmpi openmpi-devel which
-          echo 'export PATH=/usr/lib64/openmpi/bin:$PATH' >> ~/.bashrc
-          echo 'export LD_LIBRARY_PATH=/usr/lib64/openmpi/lib:$LD_LIBRARY_PATH' >> ~/.bashrc
-          source ~/.bashrc
+
+          # Add OpenMPI paths so future steps can find mpicxx/mpirun
+          echo "/usr/lib64/openmpi/bin" >> $GITHUB_PATH
+          echo "/usr/lib64/openmpi/lib" >> $GITHUB_PATH
+          echo "LD_LIBRARY_PATH=/usr/lib64/openmpi/lib" >> $GITHUB_ENV
+
+      - name: Verify MPI executables
+        run: |
           which mpirun
-          which mpicc
-          lscpu
-          free -h
-          df -h
+          which mpicxx
+          mpirun --version
+          mpicxx --version
 
       - name: Compile MPI program
         run: mpicxx t1.cpp -o t_mpi
 
       - name: Run MPI program
         run: |
+          mpirun -np 4 ./t_mpi
+          mpirun --use-hwthread-cpus -np 4 ./t_mpi
+          mpirun --report-pid --display-devel-map -np 1 hostname
           mpirun --report-pid --display-devel-map -np 1 ./t_mpi
           mpirun --oversubscribe --report-pid --display-devel-map -np 4 hostname
